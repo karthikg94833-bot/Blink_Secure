@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>EyeControl - Grid Mouse Controller</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --primary: #3b82f6;
+      --primary-dark: #1d4ed8;
+      --secondary: #64748b;
+      --danger: #ef4444;
+      --success: #10b981;
+      --bg-dark: #0f172a;
+      --bg-card: #1e293b;
+      --bg-hover: #334155;
+      --text-light: #e2e8f0;
+      --text-muted: #94a3b8;
+      --border: rgba(255,255,255,0.1);
+      --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      background: var(--bg-dark);
+      color: var(--text-light);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .app-container {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 30px;
+      max-width: 1100px;
+      width: 100%;
+    }
+    
+    .grid-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 12px;
+      width: 100%;
+      max-width: 500px;
+      aspect-ratio: 1 / 1;
+    }
+    
+    .cell {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      font-weight: bold;
+      font-size: 24px;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow);
+    }
+    
+    .cell:hover {
+      transform: translateY(-5px);
+      background: var(--bg-hover);
+      box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.4);
+    }
+    
+    .cell:active {
+      transform: translateY(0);
+      transition: transform 0.05s;
+    }
+    
+    .controls-section {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .card {
+      background: var(--bg-card);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+    }
+    
+    h1 {
+      font-size: 28px;
+      margin-bottom: 8px;
+      background: linear-gradient(90deg, var(--primary), #8b5cf6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border-radius: 10px;
+      border: none;
+      background: var(--primary);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    .btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+    
+    .btn:active {
+      transform: translateY(0);
+    }
+    
+    .btn-secondary {
+      background: var(--secondary);
+    }
+    
+    .btn-danger {
+      background: var(--danger);
+    }
+    
+    .btn-danger:hover {
+      background: #dc2626;
+    }
+    
+    .btn-group {
+      display: flex;
+      gap: 12px;
+    }
+    
+    .btn-group .btn {
+      flex: 1;
+    }
+    
+    .status-card {
+      margin-top: 10px;
+    }
+    
+    .status-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .status-item:last-child {
+      border-bottom: none;
+    }
+    
+    .status-label {
+      color: var(--text-muted);
+    }
+    
+    .status-value {
+      font-weight: 600;
+    }
+    
+    .status-on {
+      color: var(--success);
+    }
+    
+    .status-off {
+      color: var(--danger);
+    }
+    
+    .password-info {
+      margin-top: 16px;
+      padding: 16px;
+      background: rgba(59, 130, 246, 0.1);
+      border-radius: 10px;
+      border-left: 4px solid var(--primary);
+    }
+    
+    .password-info h3 {
+      font-size: 16px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .password-info p {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+    
+    .instructions {
+      margin-top: 20px;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+    
+    .instructions ul {
+      padding-left: 20px;
+      margin-top: 8px;
+    }
+    
+    .instructions li {
+      margin-bottom: 6px;
+    }
+    
+    .last-action {
+      margin-top: 20px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      text-align: center;
+      font-size: 14px;
+    }
+    
+    .last-action-id {
+      font-weight: bold;
+      color: var(--primary);
+      font-size: 18px;
+    }
+    
+    @media (max-width: 900px) {
+      .app-container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+      }
+      
+      .grid {
+        max-width: 400px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      body {
+        padding: 15px;
+      }
+      
+      .grid {
+        max-width: 100%;
+      }
+      
+      .card {
+        padding: 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Grid Section -->
+    <div class="grid-section">
+      <div class="grid" id="grid">
+        <div class="cell" data-id="1">1</div>
+        <div class="cell" data-id="2">2</div>
+        <div class="cell" data-id="3">3</div>
+        <div class="cell" data-id="4">4</div>
+        <div class="cell" data-id="5">5</div>
+        <div class="cell" data-id="6">6</div>
+        <div class="cell" data-id="7">7</div>
+        <div class="cell" data-id="8">8</div>
+        <div class="cell" data-id="9">9</div>
+      </div>
+      
+      <div class="last-action">
+        Last action: <span class="last-action-id" id="lastAction">-</span>
+      </div>
+    </div>
+    
+    <!-- Controls Section -->
+    <div class="controls-section">
+      <div class="card">
+        <h1>EyeControl</h1>
+        <p class="subtitle">Grid-based mouse control with eye tracking</p>
+        
+        <div class="btn-group">
+          <button id="moveOnly" class="btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            Move Only
+          </button>
+          <button id="clickThenMove" class="btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Move & Click
+          </button>
+        </div>
+        
+        <div class="password-info">
+          <h3>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            Password Protected
+          </h3>
+          <p>Your grid password is active. Click below to change it.</p>
+        </div>
+        
+        <div class="btn-group" style="margin-top: 16px;">
+          <button id="changePassword" class="btn btn-secondary">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path>
+            </svg>
+            Change Password
+          </button>
+          <button id="resetPassword" class="btn btn-danger">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 4 23 10 17 10"></polyline>
+              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+            </svg>
+            Reset
+          </button>
+        </div>
+      </div>
+      
+      <div class="card status-card">
+        <h2>System Status</h2>
+        <div class="status-item">
+          <span class="status-label">Eye Tracker:</span>
+          <span class="status-value" id="eyeStatus">Checking...</span>
+        </div>
+        <div class="status-item">
+          <span class="status-label">Screen Resolution:</span>
+          <span class="status-value" id="screenSize">-</span>
+        </div>
+        <div class="status-item">
+          <span class="status-label">Password Status:</span>
+          <span class="status-value" id="passwordStatus">Active</span>
+        </div>
+      </div>
+      
+      <div class="card">
+        <h2>How to Use</h2>
+        <div class="instructions">
+          <ul>
+            <li>Click any grid cell to move the cursor to that region</li>
+            <li>Use "Move & Click" to move and click at the last selected position</li>
+            <li>Eye tracking continuously moves the cursor (blink to click)</li>
+            <li>Change your grid password for security</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const grid = document.getElementById('grid');
+    const eyeStatus = document.getElementById('eyeStatus');
+    const screenSize = document.getElementById('screenSize');
+    const passwordStatus = document.getElementById('passwordStatus');
+    const lastAction = document.getElementById('lastAction');
+
+    let lastClickedId = null;
+
+    // Fetch system status
+    fetch('/status')
+      .then(r => r.json())
+      .then(data => {
+        eyeStatus.textContent = data.eye_tracker_running ? 'Running' : 'Not Running';
+        eyeStatus.className = data.eye_tracker_running ? 'status-value status-on' : 'status-value status-off';
+        screenSize.textContent = `${data.screen_width} × ${data.screen_height}`;
+        passwordStatus.textContent = data.password_set ? 'Active' : 'Not Set';
+        passwordStatus.className = data.password_set ? 'status-value status-on' : 'status-value status-off';
+      })
+      .catch(e => {
+        eyeStatus.textContent = 'Error';
+        eyeStatus.className = 'status-value status-off';
+        console.error('Status fetch error:', e);
+      });
+
+    // Grid click handler
+    grid.addEventListener('click', (ev) => {
+      const cell = ev.target.closest('.cell');
+      if (!cell) return;
+      
+      const id = cell.dataset.id;
+      lastClickedId = id;
+      lastAction.textContent = id;
+      
+      // Visual feedback
+      cell.style.transform = 'scale(0.95)';
+      setTimeout(() => {
+        cell.style.transform = '';
+      }, 150);
+      
+      moveTo(id, false);
+    });
+
+    // Button handlers
+    document.getElementById('clickThenMove').addEventListener('click', () => {
+      if (!lastClickedId) {
+        alert('Please select a grid cell first');
+        return;
+      }
+      moveTo(lastClickedId, true);
+    });
+
+    document.getElementById('moveOnly').addEventListener('click', () => {
+      if (!lastClickedId) {
+        alert('Please select a grid cell first');
+        return;
+      }
+      moveTo(lastClickedId, false);
+    });
+
+    document.getElementById('changePassword').addEventListener('click', () => {
+      window.location.href = '/setup-password';
+    });
+
+    document.getElementById('resetPassword').addEventListener('click', () => {
+      if (confirm('Are you sure you want to reset your password? You will need to set a new one.')) {
+        window.location.href = '/reset-password';
+      }
+    });
+
+    // Move cursor function
+    function moveTo(gridId, clickAfter = false) {
+      fetch('/move', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ grid: String(gridId), click: clickAfter })
+      })
+      .then(r => r.json())
+      .then(data => {
+        if (data.status === 'error') {
+          console.error('Move error:', data.msg);
+        }
+      })
+      .catch(err => {
+        console.error('Request failed:', err);
+        alert('Failed to communicate with the server. Please check if the Flask app is running.');
+      });
+    }
+  </script>
+</body>
+</html>
